@@ -1,0 +1,118 @@
+local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+
+local Window = WindUI:CreateWindow({
+    Title   = "My Script Hub",
+    Author  = "by you",
+    Folder  = "myhub",
+    Icon    = "paint-bucket",
+    Theme   = "Dark",
+    Acrylic = false,
+    Transparent = false,
+    Size    = UDim2.fromOffset(680, 460),
+    MinSize = Vector2.new(560, 350),
+    MaxSize = Vector2.new(850, 560),
+    ToggleKey  = Enum.KeyCode.RightShift,
+    Resizable  = true,
+    AutoScale  = true,
+    NewElements = true,
+    HideSearchBar = false,
+    ScrollBarEnabled = false,
+    SideBarWidth = 200,
+    Topbar = {
+        Height      = 44,
+        ButtonsType = "Default",
+    },
+    OpenButton = {
+        Title = "My Hub",
+        Icon = "zap",
+        CornerRadius = UDim.new(1, 0),
+        StrokeThickness = 3,
+        Enabled = true,
+        Draggable = true,
+        OnlyMobile = false,
+        Scale = 1,
+        Color = ColorSequence.new(
+            Color3.fromHex("#30FF6A"),
+            Color3.fromHex("#e7ff2f")
+        ),
+    },
+    User = {
+        Enabled  = true,
+        Anonymous = false,
+        Callback = function()
+            print("user panel clicked")
+        end,
+    },
+})
+
+-- Main Tab
+local MainTab = Window:Tab({
+    Title = "Main",
+    Icon = "house"
+})
+
+-- Settings Tab
+-- Theme
+local ThemeTab = Window:Tab({ Title = "Settings", Icon = "settings" })
+
+ThemeTab:Dropdown({
+    Title  = "Theme",
+    Values = (function()
+        local names = {}
+        for name in pairs(WindUI:GetThemes()) do
+            table.insert(names, name)
+        end
+        table.sort(names)
+        return names
+    end)(),
+    Value    = WindUI:GetCurrentTheme(),
+    Callback = function(selected)
+        WindUI:SetTheme(selected)
+    end,
+})
+
+ThemeTab:Toggle({
+    Title = "Acrylic",
+    Value = false,
+    Callback = function()
+        local isOn = WindUI.Window.Acrylic
+        WindUI:ToggleAcrylic(not isOn)
+    end,
+})
+
+ThemeTab:Toggle({
+    Title = "Transparent",
+    Value = WindUI:GetTransparency(),
+    Callback = function(state)
+        Window:ToggleTransparency(state)
+    end
+})
+
+local currentKey = Enum.KeyCode.RightShift
+
+ThemeTab:Keybind({
+    Title = "Toggle UI Key",
+    Value = currentKey,
+    Callback = function(v)
+        currentKey = (typeof(v) == "EnumItem") and v or Enum.KeyCode[v]
+        Window:SetToggleKey(currentKey)
+    end,
+})
+
+UserInputService.InputBegan:Connect(function(input)
+    if input.KeyCode == currentKey then
+        Window:Toggle()
+    end
+end)
+
+WindUI:Notify({
+  Title = "PlayerHub",
+  Content = "Welcome to PlayerHub!",
+})
+
+WindUI:SetNotificationLower(true)
