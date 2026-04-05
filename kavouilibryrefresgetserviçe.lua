@@ -9,7 +9,7 @@ local input = game:GetService("UserInputService")
 local run = game:GetService("RunService")
 
 local Utility = {}
-local Objects = {}
+local Objects = {}      
 function Kavo:DraggingEnabled(frame, parent)
     parent = parent or frame
     local dragging, dragInput, mousePos, framePos
@@ -30,7 +30,7 @@ function Kavo:DraggingEnabled(frame, parent)
         if dragging and dragInput then
             local delta = dragInput.Position - mousePos
             local targetPos = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
-            parent.Position = parent.Position:Lerp(targetPos, 0.25)
+            parent.Position = parent.Position:Lerp(targetPos, 0.25) -- Isso faz o arrastar ficar suave
         end
     end)
 end
@@ -283,39 +283,47 @@ function Kavo.CreateLib(kavName, themeList)
         ScreenGui:Destroy()
     end)
 
-
--- BOTÃO MINIMIZAR E FOTO
+-- [ INÍCIO DO PASSO 2 ] --
     local minimize = Instance.new("TextButton")
     local minimizedBall = Instance.new("ImageButton")
     local ballCorner = Instance.new("UICorner")
     local ballStroke = Instance.new("UIStroke")
     
+    -- Configuração da Bolinha (Foto de Perfil)
     minimizedBall.Name = "MinimizedBall"
     minimizedBall.Parent = ScreenGui
-    minimizedBall.Position = UDim2.new(0.05, 0, 0.85, 0)
-    minimizedBall.Size = UDim2.new(0, 50, 0, 50)
+    minimizedBall.Position = UDim2.new(0.1, 0, 0.5, 0) -- Posição inicial na tela
+    minimizedBall.Size = UDim2.new(0, 60, 0, 60)
     minimizedBall.Visible = false
+    minimizedBall.Active = true -- Importante para o clique/arrastar
+    minimizedBall.Draggable = false -- Não use a propriedade nativa, usamos a função Kavo
     minimizedBall.Image = "rbxthumb://type=AvatarHeadShot&id="..game.Players.LocalPlayer.UserId.."&w=150&h=150"
-    minimizedBall.ZIndex = 999
+    minimizedBall.ZIndex = 9999
+    
     ballCorner.CornerRadius = UDim.new(1, 0)
     ballCorner.Parent = minimizedBall
+    
     ballStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     ballStroke.Color = Color3.fromRGB(255, 255, 255)
     ballStroke.Thickness = 2
     ballStroke.Parent = minimizedBall
 
+    -- ATIVA O ARRASTAR NA BOLINHA (Usa a função da Linha 14)
     Kavo:DraggingEnabled(minimizedBall) 
 
+    -- Configuração do Botão Minimizar (O "-" no topo do menu)
     minimize.Name = "minimize"
     minimize.Parent = MainHeader
     minimize.BackgroundTransparency = 1
-    minimize.Position = UDim2.new(0.95, -50, 0.14, 0)
-    minimize.Size = UDim2.new(0, 21, 0, 21)
+    minimize.Position = UDim2.new(1, -65, 0, 0) -- Ajustado para ficar ao lado do X
+    minimize.Size = UDim2.new(0, 30, 0, 30)
     minimize.Font = Enum.Font.GothamBold
     minimize.Text = "-"
     minimize.TextColor3 = Color3.fromRGB(255, 255, 255)
     minimize.TextSize = 25
+    minimize.ZIndex = 1000
 
+    -- Funções de clique
     minimize.MouseButton1Click:Connect(function()
         Main.Visible = false
         minimizedBall.Visible = true
@@ -325,10 +333,7 @@ function Kavo.CreateLib(kavName, themeList)
         minimizedBall.Visible = false
         Main.Visible = true
     end)
-
-
-
-
+    -- [ FIM DO PASSO 2 ] --
 
     MainSide.Name = "MainSide"
     MainSide.Parent = Main
