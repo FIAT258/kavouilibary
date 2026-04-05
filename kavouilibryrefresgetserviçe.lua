@@ -11,37 +11,26 @@ local run = game:GetService("RunService")
 local Utility = {}
 local Objects = {}
 function Kavo:DraggingEnabled(frame, parent)
-        
     parent = parent or frame
-    
-    -- stolen from wally or kiriot, kek
-    local dragging = false
-    local dragInput, mousePos, framePos
-
+    local dragging, dragInput, mousePos, framePos
     frame.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = true
             mousePos = input.Position
             framePos = parent.Position
-            
             input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
+                if input.UserInputState == Enum.UserInputState.End then dragging = false end
             end)
         end
     end)
-
     frame.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
-            dragInput = input
-        end
+        if input.UserInputType == Enum.UserInputType.MouseMovement then dragInput = input end
     end)
-
-    input.InputChanged:Connect(function(input)
-        if input == dragInput and dragging then
-            local delta = input.Position - mousePos
-            parent.Position  = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
+    game:GetService("RunService").RenderStepped:Connect(function()
+        if dragging and dragInput then
+            local delta = dragInput.Position - mousePos
+            local targetPos = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
+            parent.Position = parent.Position:Lerp(targetPos, 0.25)
         end
     end)
 end
@@ -293,6 +282,53 @@ function Kavo.CreateLib(kavName, themeList)
         wait(1)
         ScreenGui:Destroy()
     end)
+
+
+-- BOTÃO MINIMIZAR E FOTO
+    local minimize = Instance.new("TextButton")
+    local minimizedBall = Instance.new("ImageButton")
+    local ballCorner = Instance.new("UICorner")
+    local ballStroke = Instance.new("UIStroke")
+    
+    minimizedBall.Name = "MinimizedBall"
+    minimizedBall.Parent = ScreenGui
+    minimizedBall.Position = UDim2.new(0.05, 0, 0.85, 0)
+    minimizedBall.Size = UDim2.new(0, 50, 0, 50)
+    minimizedBall.Visible = false
+    minimizedBall.Image = "rbxthumb://type=AvatarHeadShot&id="..game.Players.LocalPlayer.UserId.."&w=150&h=150"
+    minimizedBall.ZIndex = 999
+    ballCorner.CornerRadius = UDim.new(1, 0)
+    ballCorner.Parent = minimizedBall
+    ballStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    ballStroke.Color = Color3.fromRGB(255, 255, 255)
+    ballStroke.Thickness = 2
+    ballStroke.Parent = minimizedBall
+
+    Kavo:DraggingEnabled(minimizedBall) 
+
+    minimize.Name = "minimize"
+    minimize.Parent = MainHeader
+    minimize.BackgroundTransparency = 1
+    minimize.Position = UDim2.new(0.95, -50, 0.14, 0)
+    minimize.Size = UDim2.new(0, 21, 0, 21)
+    minimize.Font = Enum.Font.GothamBold
+    minimize.Text = "-"
+    minimize.TextColor3 = Color3.fromRGB(255, 255, 255)
+    minimize.TextSize = 25
+
+    minimize.MouseButton1Click:Connect(function()
+        Main.Visible = false
+        minimizedBall.Visible = true
+    end)
+
+    minimizedBall.MouseButton1Click:Connect(function()
+        minimizedBall.Visible = false
+        Main.Visible = true
+    end)
+
+
+
+
 
     MainSide.Name = "MainSide"
     MainSide.Parent = Main
